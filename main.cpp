@@ -55,7 +55,9 @@ using iterator_type = container_type::const_iterator;
 class dynamic_domain_iterator
 {
 public:
-	dynamic_domain_iterator() = default;
+	dynamic_domain_iterator()
+	: it(g_default_container.begin())
+	{std::cout << g_default_container.size() << '\n';}
 	dynamic_domain_iterator(const iterator_type& it) : it(it) {}
 	
 	const dynamic_domain& operator*() const
@@ -97,7 +99,11 @@ public:
 	
 private:
 	iterator_type it;
+	
+	const static container_type g_default_container;
 };
+
+const container_type dynamic_domain_iterator::g_default_container{{0x8BADBEEF, dynamic_domain{0x8BADBEEF}}};
 
 namespace std
 {
@@ -117,26 +123,6 @@ namespace boost { namespace icl {
 	struct interval_type_default<dynamic_domain_iterator>
 	{
 		using type = boost::icl::closed_interval<dynamic_domain_iterator>;
-	};
-}}
-
-namespace boost { namespace icl {
-	template<>
-	bool is_empty<closed_interval<dynamic_domain_iterator>>(const closed_interval<dynamic_domain_iterator>& object)
-	{
-		const dynamic_domain_iterator emptyIterator{};
-		const auto& lower = boost::icl::lower(object);
-		const auto& upper = boost::icl::upper(object);
-		return lower == emptyIterator || upper == emptyIterator || domain_less<closed_interval<dynamic_domain_iterator>>(upper, lower);
-	}
-	
-	template <>
-	struct unit_element<dynamic_domain_iterator>
-	{
-		static dynamic_domain_iterator value()
-		{
-			return dynamic_domain_iterator{};
-		}
 	};
 }}
 
